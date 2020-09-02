@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sj.repository.GoodsRepository">
+    <resultMap id="AnimeMap" type="AnimeInfo">
+        <id property="anime_id" column="anime_id"></id>
+        <result property="anime_name" column="anime_name"></result>
+        <result property="anime_price" column="anime_price"></result>
+        <result property="anime_desc" column="anime_desc"></result>
+        <result property="anime_stock" column="anime_stock"></result>
+        <result property="anime_icon" column="anime_icon"></result>
+        <result property="admin_id" column="admin_id"></result>
+        <association property="animeCategory" javaType="AnimeCategory"
+                     select="com.sj.repository.GoodsCategoryRepository.findAllById"
+                     column="category_id"></association>
+    </resultMap>
+
+    <!--分页查询-->
+    <select id="findAllPage" resultMap="AnimeMap">
+        select * from anime_info limit #{param1},#{param2}
+    </select>
+    <!--总数居-->
+    <select id="animeCount" resultType="int">
+        select count(*) from anime_info
+    </select>
+    <!--分类查询-->
+    <select id="findAllByCategory" resultMap="AnimeMap">
+      select * from anime_info ai,anime_category ac where ai.category_id=ac.category_id and ac.category_name=#{param1}
+    </select>
+    <!--Id查询-->
+    <select id="findAllById" resultMap="AnimeMap" parameterType="int">
+        select * from anime_info where anime_id=#{param1}
+    </select>
+    <!--购物车添加减少库存-->
+    <update id="updateByGoods" parameterType="int">
+        update anime_info set anime_stock=anime_stock-#{param2} where anime_id=#{param1}
+    </update>
+
+    <!--删除购物车同时批量增加库存-->
+    <update id="updateAnimeStock" parameterType="java.util.List">
+       <foreach collection="list" item="animeInfo" open="" close="" separator=";">
+           update anime_info
+           <set>
+               anime_stock=anime_stock+#{animeInfo.anime_stock}
+           </set>
+           where anime_id=#{animeInfo.anime_id}
+       </foreach>
+    </update>
+
+    <!--查询所有商品-->
+    <select id="findAllGoods" resultMap="AnimeMap">
+        select * from anime_info
+    </select>
+
+</mapper>

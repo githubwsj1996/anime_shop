@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sj.repository.OrdersRepository">
+
+    <resultMap id="ordersMap" type="OrdersLook">
+        <id property="order_id" column="order_id"></id>
+        <result property="order_price" column="order_price"></result>
+        <result property="order_state" column="order_state"></result>
+        <association property="cancelCause" javaType="CancelCause"
+                     select="com.sj.repository.CanCelCauseRepository.findById"
+                     column="cause_id"></association>
+    </resultMap>
+    <select id="findById"  resultMap="ordersMap">
+        select * from orders as os,cancel_cause as cc
+        where os.cause_id=cc.cause_id and os.order_id=#{param1}
+    </select>
+
+    <!--添加订单-->
+    <insert id="saveOrders" parameterType="Orders" useGeneratedKeys="true" keyProperty="order_id">
+        insert into orders(order_id,order_price) values (#{order_id},#{order_price})
+    </insert>
+
+    <!--修改订单状态,跟新原因状态-->
+    <update id="updateStateSaveCause" >
+        update orders set order_state=#{param2},cause_id=#{param3} where order_id=#{param1}
+    </update>
+
+    <!--删除订单-->
+    <delete id="deleteOrder">
+        delete from orders where order_id=#{param1}
+    </delete>
+
+</mapper>

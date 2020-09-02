@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sj.repository.UserAddressRepository">
+    <resultMap id="userMap" type="UserAddress">
+        <id property="user_addressid" column="user_addressid"></id>
+        <result property="address_name" column="address_name"></result>
+        <result property="user_phone" column="user_phone"></result>
+        <result property="user_address" column="user_address"></result>
+        <result property="user_area" column="user_area"></result>
+        <association property="userInfo"
+                     select="com.sj.repository.UserRepository.findAllById"
+                     column="user_id"></association>
+    </resultMap>
+
+    <select id="findAllById" parameterType="int" resultMap="userMap">
+        select * from user_address ua,user_info ui
+        where ua.user_id=ui.user_id and ua.user_id=#{param1}
+    </select>
+
+    <insert id="saveAddress" parameterType="AddressSave" useGeneratedKeys="true" keyProperty="user_addressid">
+        insert into user_address(user_id,address_name,user_phone,user_address,user_area)
+        values (#{user_id},#{address_name},#{user_phone},#{user_address},#{user_area})
+    </insert>
+
+    <select id="findByAddressId" parameterType="int" resultMap="userMap">
+        select * from user_address where user_addressid=#{param1}
+    </select>
+
+    <update id="updateAddress" parameterType="AddressSave">
+        update user_address set address_name=#{address_name},user_phone=#{user_phone},user_address=#{user_address},
+        user_area=#{user_area} where user_addressid=#{user_addressid}
+    </update>
+
+    <delete id="deleteAddress" parameterType="int" >
+        delete from user_address where user_addressid=#{param1}
+    </delete>
+
+</mapper>

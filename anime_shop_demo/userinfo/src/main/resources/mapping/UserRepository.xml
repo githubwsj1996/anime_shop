@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sj.repository.UserRepository">
+    <select id="findAllByUserName" resultType="UserInfo" >
+        select * from user_info where user_name=#{param1}
+    </select>
+
+    <update id="updateUserState">
+        update user_info set state=#{param2} where user_name=#{param1}
+    </update>
+
+    <insert id="registerUser"  parameterType="com.sj.entity.UserInfo" >
+        insert into user_info(user_name,user_salt,user_password,user_role,user_perm)
+         value (#{user_name},#{user_salt},#{user_password},#{user_role},#{user_perm})
+    </insert>
+
+    <select id="findAllById" resultType="UserInfo" parameterType="int">
+        select * from user_info where user_id=#{param1}
+    </select>
+
+    <update id="updateUserAddressId" parameterType="int">
+        update user_info set user_addressid=#{param2} where user_id=#{param1}
+    </update>
+
+    <update id="updateUserInfo1" parameterType="UserInfo">
+        update user_info set user_name=#{user_name},user_icon=#{user_icon} where user_id=#{user_id}
+    </update>
+
+    <update id="updateUserInfo2" parameterType="UserInfo">
+        update user_info set user_name=#{user_name},user_salt=#{user_salt},
+        user_password=#{user_password},user_icon=#{user_icon} where user_id=#{user_id}
+    </update>
+
+</mapper>

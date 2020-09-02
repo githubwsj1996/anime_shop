@@ -1,0 +1,1 @@
+使用的redis的库是select 0

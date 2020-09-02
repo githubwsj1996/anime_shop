@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sj.repository.OrderDetailsRepository">
+
+    <resultMap id="orderDetailsMap" type="OrderDetails">
+        <id property="order_details_id" column="order_details_id"></id>
+        <result property="price" column="price"></result>
+        <result property="quantity" column="quantity"></result>
+        <result property="total_price" column="total_price"></result>
+        <association property="ordersLook" javaType="OrdersLook"
+                     select="com.sj.repository.OrdersRepository.findById"
+                     column="order_id"></association>
+        <association property="userInfo"
+                     select="com.sj.repository.UserRepository.findAllById"
+                     column="user_id"></association>
+        <association property="address"
+                     select="com.sj.repository.UserAddressRepository.findAllById"
+                     column="address_id"></association>
+        <association property="animeInfo"
+                     select="com.sj.repository.GoodsRepository.findAllById"
+                     column="anime_id"></association>
+        <association property="animeSpecs"
+                     select="com.sj.repository.GoodsSpecsRepository.findAllById"
+                     column="specs_id"></association>
+    </resultMap>
+
+    <!--查询购买清单-->
+    <select id="findPromptlyOrder" resultMap="orderDetailsMap">
+            select * from order_details od,orders os, user_info ui,user_address ua,anime_info ai,anime_specs `as`
+            where od.order_id=os.order_id and od.user_id=ui.user_id and od.address_id=ua.user_addressid and od.anime_id=ai.anime_id
+            and od.specs_id=`as`.specs_id and od.order_id=#{param1}
+    </select>
+
+    <!--添加详情-->
+    <insert id="promptlySaveDetails" parameterType="OrderDetailsSave">
+        insert into order_details(order_details_id,order_id,user_id,address_id,anime_id,specs_id,price,quantity,total_price)
+        values (#{order_details_id},#{order_id},#{user_id},#{address_id},#{anime_id},#{specs_id},#{price},#{quantity},#{total_price})
+    </insert>
+
+    <!--批量创建订单-->
+    <insert id="cartSaveDetails" parameterType="java.util.List">
+        <foreach collection="list" item="order" open="" close="" separator=";">
+            insert into
+            order_details(order_details_id,order_id,user_id,address_id,anime_id,specs_id,price,quantity,total_price)
+            values (#{order.order_details_id},#{order.order_id},#{order.user_id},#{order.address_id},
+            #{order.anime_id},#{order.specs_id},#{order.price},#{order.quantity},#{order.total_price})
+        </foreach>
+    </insert>
+
+    <!--查询订单总价-->
+    <select id="sumTotalPrice" resultType="java.math.BigDecimal">
+        select sum(total_price) from order_details where order_id=#{param1}
+    </select>
+
+    <!--用户所有订单-->
+    <select id="findNoByState" resultMap="orderDetailsMap">
+        select * from order_details od,orders os, user_info ui,user_address ua,anime_info ai,anime_specs `as`
+            where od.order_id=os.order_id and od.user_id=ui.user_id and od.address_id=ua.user_addressid and od.anime_id=ai.anime_id
+            and od.specs_id=`as`.specs_id and od.user_id=#{param1} and os.order_state=#{param2} group  by od.order_id order by od.order_id desc
+    </select>
+
+    <!--查询订单信息根据订单状态-->
+    <select id="findDetailsByState" resultMap="orderDetailsMap">
+        select * from order_details od,orders os, user_info ui,user_address ua,anime_info ai,anime_specs `as`
+            where od.order_id=os.order_id and od.user_id=ui.user_id and od.address_id=ua.user_addressid and od.anime_id=ai.anime_id
+            and od.specs_id=`as`.specs_id and od.order_id=#{param1} and os.order_state=#{param2}
+    </select>
+
+    <!--删除订单-->
+    <delete id="deleteDetails">
+        delete from  order_details where order_id=#{param1}
+    </delete>
+
+    <!--统计成交最多的商品-->
+    <select id="countDetailsByAnimeId" resultMap="orderDetailsMap">
+         select *,count(*) from order_details od,orders os,anime_info ai
+            where od.order_id=os.order_id and od.anime_id=ai.anime_id and os.order_state=1
+            group by od.anime_id order by count(*) desc limit 0,3
+    </select>
+</mapper>

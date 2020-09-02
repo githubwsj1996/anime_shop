@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sj.repository.GoodsSpecsRepository">
+    <resultMap id="specsMap" type="AnimeSpecs">
+        <id property="specs_id" column="specs_id"></id>
+        <result property="specs_name" column="specs_name" ></result>
+        <result property="specs_stock" column="specs_stock" ></result>
+        <result property="specs_price" column="specs_price" ></result>
+        <result property="specs_icon" column="specs_icon" ></result>
+        <result property="specs_preview" column="specs_preview" ></result>
+        <association property="animeInfo"
+                     select="com.sj.repository.GoodsRepository.findAllById"
+                     column="anime_id"></association>
+    </resultMap>
+
+    <select id="findAllById" resultMap="specsMap">
+        select * from anime_specs where specs_id=#{param1}
+    </select>
+
+    <update id="updateSpecs" parameterType="int">
+        update anime_specs set specs_stock=specs_stock-#{param2} where specs_id=#{param1}
+    </update>
+
+    <update id="updateMoreStock" parameterType="java.util.List">
+        <foreach collection="list" item="item" open="" close="" separator=";">
+            update anime_specs
+            <set>
+                specs_stock=specs_stock+#{item.specs_stock}
+            </set>
+            where specs_id=#{item.specs_id}
+        </foreach>
+    </update>
+</mapper>
